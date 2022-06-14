@@ -3,7 +3,7 @@ from PyQt6.QtWidgets import QApplication
 from PyQt6.QtWidgets import QWidget,QGroupBox,QDialog,QVBoxLayout,QMessageBox,QStyleFactory
 from PyQt6.QtCore import QIODevice,pyqtSignal
 from PyQt6.QtCore import QTimer,QThread
-from PyQt6.QtGui import QPalette, QColor
+from PyQt6.QtGui import QPalette, QColor, QIcon
 from PyQt6 import uic
 from PyQt6.QtSerialPort import QSerialPort,QSerialPortInfo 
 import sys,itertools
@@ -15,7 +15,7 @@ from base_ui import CommunicationHandler
 from dark_palette import PALETTE_DARK
 
 # This GUIs version
-version = "1.8.6"
+version = "1.8.7"
 
 # Minimal supported firmware version. 
 # Major version of firmware must match firmware. Minor versions must be higher or equal
@@ -335,13 +335,17 @@ def windowsThemeIsLight(): # detect if the user is using Dark Mode in Windows
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
+    
     window = MainUi()
     if (sys.platform == 'win32' or "Windows" in sys.platform):  #only on windows, for macOS and linux use system palette. windows server is not called win32
         from winreg import HKEY_CURRENT_USER as hkey, QueryValueEx as getSubkeyValue, OpenKey as getKey
-        if (windowsThemeIsLight() == 0):
+        import ctypes
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(u'openFFB.configurator') # set the app id, so the taskbar using correct icon
+        if (windowsThemeIsLight() == 0): # system is in dark mode
             app.setStyle("Fusion")
             app.setPalette(PALETTE_DARK)
     window.setWindowTitle("Open FFBoard Configurator")
+    window.setWindowIcon(QIcon('res/app.ico'))
     window.show()
     global mainapp
     mainapp = window
